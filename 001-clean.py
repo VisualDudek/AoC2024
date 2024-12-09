@@ -39,8 +39,12 @@ def similarity_score(left: List[int], right: List[int]) -> int:
     no need to sort lists but I need to turn second list into Counter dict?
     """
     c = Counter(right)
-
-    return sum([item * c[item] for item in left])
+    # fmt: off
+    return sum(
+        item * c[item] 
+        for item in left
+        )
+    # fmt: on
 
 
 def part1(data: str) -> int:
