@@ -58,7 +58,7 @@ def blinkrecursive(depth: int, number: int):
         # print(number)
         return 1
     if number == 0:
-        # MEGA BUG
+        # MEGA BUG brakowało returna, debugowałem to ok 1h ...
         # blinkrecursive(depth - 1, 1)
         return blinkrecursive(depth - 1, 1)
     elif rule_two(number):
