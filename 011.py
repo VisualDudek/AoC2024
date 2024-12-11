@@ -18,6 +18,10 @@ def rule_one(x: int) -> List[int] | bool:
     return False
 
 
+from functools import lru_cache
+
+
+@lru_cache(maxsize=None)
 def rule_two(x: int) -> List[int] | bool:
     """
     Rule 2: If nuber havse ans even number of digits
@@ -34,13 +38,53 @@ def blink(data: List[int]) -> List[int]:
     """
     new_data: List[int] = []
     for x in data:
-        if rule_one(x):
-            new_data.extend(rule_one(x))
+        # if rule_one(x):
+        # new_data.extend(rule_one(x))
+        if x == 0:
+            new_data.append(1)
         elif rule_two(x):
             new_data.extend(rule_two(x))
         else:
             new_data.append(x * 2024)
     return new_data
+
+
+@lru_cache(maxsize=None)
+def blinkrecursive(depth: int, number: int):
+    """
+    Recursive blink.
+    """
+    if depth == 0:
+        # print(number)
+        return 1
+    if number == 0:
+        # MEGA BUG
+        # blinkrecursive(depth - 1, 1)
+        return blinkrecursive(depth - 1, 1)
+    elif rule_two(number):
+        left, right = rule_two(number)
+        return blinkrecursive(depth - 1, left) + blinkrecursive(depth - 1, right)
+
+    return blinkrecursive(depth - 1, number * 2024)
+
+
+def test_rec():
+    data = parse_data("125 17")
+
+    res = 0
+    for _ in data:
+        res += blinkrecursive(25, _)
+
+    print(f"res: {res}")
+
+
+def part2(s: str) -> None:
+    data = parse_data(s)
+    res = 0
+    for _ in data:
+        res += blinkrecursive(75, _)
+    print(f"res: {res}")
+    pass
 
 
 def test():
@@ -64,8 +108,11 @@ def get_file_data(file_path: str) -> str:
 
 
 if __name__ == "__main__":
-    # test()
+    # test_rec()
 
     file_data = get_file_data("./data/011.txt")
 
-    print(part1(file_data))  # 220722
+    # print(part1(file_data))  # 220722
+    # print(part2(file_data))  #
+
+    part2(file_data)
