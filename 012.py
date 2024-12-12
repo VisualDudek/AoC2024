@@ -79,7 +79,7 @@ def find_group(
     pass
 
 
-def calculate(groups: defaultdict[int, List[Tuple[int, int]]]) -> int:
+def calculate_part_one(groups: defaultdict[int, List[Tuple[int, int]]]) -> int:
     res = 0
     for _, group in groups.items():
         # calculate perimeter
@@ -112,7 +112,7 @@ def test():
     print(data)
     gr = traverse_mattrix(data)
     print(gr)
-    print(calculate(gr))
+    print(calculate_part_one(gr))  # 1344578
 
 
 if __name__ == "__main__":
