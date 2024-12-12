@@ -100,6 +100,15 @@ def calculate_part_one(groups: defaultdict[int, List[Tuple[int, int]]]) -> int:
     return res
 
 
+def calculate_part_two(groups: defaultdict[int, List[Tuple[int, int]]]) -> int:
+    res = 0
+    for _, group in groups.items():
+        # calculate number of edges
+        edges = 0
+
+    return res
+
+
 def get_file_data(file_path: str) -> str:
     with open(file_path, "r") as file:
         return file.read()
