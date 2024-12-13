@@ -21,6 +21,24 @@ MIIIIIJJEE
 MIIISIJEEE
 MMMISSJEEE"""
 
+test_data_03 = """AAAAAA
+AAABBA
+AAABBA
+ABBAAA
+ABBAAA
+AAAAAA"""
+
+test_data_04 = """AAAA
+BBCD
+BBCC
+EEEC"""
+
+test_data_05 = """EEEEE
+EXXXX
+EEEEE
+EXXXX
+EEEEE"""
+
 
 def parse_data(s: str) -> defaultdict[Tuple[int, int], str]:
     """
@@ -105,8 +123,82 @@ def calculate_part_two(groups: defaultdict[int, List[Tuple[int, int]]]) -> int:
     for _, group in groups.items():
         # calculate number of edges
         edges = 0
+        visited_set: Set[
+            Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int], Tuple[int, int]]
+        ] = set()
+        for item in group:
+            x, y = item
+            # Check all four sides
+            # left up
+            corner = ((x - 1, y - 1), (x, y - 1), (x - 1, y), (x, y))
+            if is_corner(corner, group) and corner not in visited_set:
+                visited_set.add(corner)
+                if is_corner_double(corner, group):
+                    edges += 2
+                else:
+                    edges += 1
+            # right up
+            corner = ((x, y - 1), (x + 1, y - 1), (x, y), (x + 1, y))
+            if is_corner(corner, group) and corner not in visited_set:
+                visited_set.add(corner)
+                if is_corner_double(corner, group):
+                    edges += 2
+                else:
+                    edges += 1
+
+            # left down
+            corner = ((x - 1, y), (x, y), (x - 1, y + 1), (x, y + 1))
+            if is_corner(corner, group) and corner not in visited_set:
+                visited_set.add(corner)
+                if is_corner_double(corner, group):
+                    edges += 2
+                else:
+                    edges += 1
+
+            # right down
+            corner = ((x, y), (x + 1, y), (x, y + 1), (x + 1, y + 1))
+            if is_corner(corner, group) and corner not in visited_set:
+                visited_set.add(corner)
+                if is_corner_double(corner, group):
+                    edges += 2
+                else:
+                    edges += 1
+
+        res += edges * len(group)
+        # print(f"group: {group} edges: {edges}")
+        # print(f"visited_set: {visited_set}")
 
     return res
+
+
+def is_corner(
+    corner: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int], Tuple[int, int]],
+    group: List[Tuple[int, int]],
+) -> bool:
+    LU, RU, LD, RD = corner
+    if LU in group and RU in group and LD not in group and RD not in group:
+        return False
+    if LU not in group and RU in group and LD not in group and RD in group:
+        return False
+    if LU not in group and RU not in group and LD in group and RD in group:
+        return False
+    if LU in group and RU not in group and LD in group and RD not in group:
+        return False
+    if LU in group and RU in group and LD in group and RD in group:
+        return False
+    return True
+
+
+def is_corner_double(
+    corner: Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int], Tuple[int, int]],
+    group: List[Tuple[int, int]],
+) -> bool:
+    LU, RU, LD, RD = corner
+    if LU in group and RD in group and RU not in group and LD not in group:
+        return True
+    if LU not in group and RD not in group and RU in group and LD in group:
+        return True
+    return False
 
 
 def get_file_data(file_path: str) -> str:
@@ -117,11 +209,13 @@ def get_file_data(file_path: str) -> str:
 def test():
     # data = parse_data(test_data)
     # data = parse_data(test_data_02)
+    data = parse_data(test_data_03)
     data = parse_data(get_file_data("./data/012.txt"))
     print(data)
     gr = traverse_mattrix(data)
     print(gr)
-    print(calculate_part_one(gr))  # 1344578
+    # print(calculate_part_one(gr))  # 1344578
+    print(calculate_part_two(gr))  # 814302
 
 
 if __name__ == "__main__":
