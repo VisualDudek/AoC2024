@@ -39,6 +39,25 @@ def parse_data(s: str):
     return parsed_data
 
 
+def parse_data_two(s: str):
+    """ """
+    pattern = re.compile(
+        r"Button A: X\+(\d+), Y\+(\d+)\nButton B: X\+(\d+), Y\+(\d+)\nPrize: X=(\d+), Y=(\d+)"
+    )
+
+    matches = pattern.findall(s)
+
+    # Parse results
+    parsed_data = {}
+    for id, match in enumerate(matches):
+        parsed_data[id] = {
+            "A": (int(match[0]), int(match[1])),
+            "B": (int(match[2]), int(match[3])),
+            "Prize": (int(match[4]) + 10000000000000, int(match[5]) + 10000000000000),
+        }
+    return parsed_data
+
+
 def pay_to_win(a: Tuple[int, int], b: Tuple[int, int], p: Tuple[int, int]) -> int:
     """
     Calculate the cost to win the prize.
@@ -46,6 +65,21 @@ def pay_to_win(a: Tuple[int, int], b: Tuple[int, int], p: Tuple[int, int]) -> in
     res = set()
     for i in range(101):
         for j in range(101):
+            if a[0] * i + b[0] * j == p[0] and a[1] * i + b[1] * j == p[1]:
+                res.add((i, j))
+    print(res)
+    if len(res) > 0:
+        return min([x * 3 + y * 1 for x, y in res])
+    return 0
+
+
+def pay_to_win_two(a: Tuple[int, int], b: Tuple[int, int], p: Tuple[int, int]) -> int:
+    """
+    Calculate the cost to win the prize.
+    """
+    res = set()
+    for i in range(max(p[0] // a[0], p[1] // a[1]) + 1):
+        for j in range(max((p[0] - a[0] * i) // b[0], (p[1] - a[1] * i) // b[1]) + 1):
             if a[0] * i + b[0] * j == p[0] and a[1] * i + b[1] * j == p[1]:
                 res.add((i, j))
     print(res)
@@ -68,13 +102,12 @@ def get_file_data(file_path: str) -> str:
 
 
 def test():
-    d = parse_data(test_data)
+    d = parse_data_two(test_data)
     print(d)
-    _ = pay_to_win(d[0]["A"], d[0]["B"], d[0]["Prize"])
-    print(_)
+    pay_to_win_two(d[0]["A"], d[0]["B"], d[0]["Prize"])
 
 
 if __name__ == "__main__":
-    # test()
+    test()
     # print(f"Testing Part 1: {part1(test_data)}")
-    print(f"Testing Part 1: {part1(get_file_data('./data/013.txt'))}")
+    # print(f"Testing Part 1: {part1(get_file_data('./data/013.txt'))}")
