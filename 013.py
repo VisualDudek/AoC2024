@@ -108,6 +108,6 @@ def test():
 
 
 if __name__ == "__main__":
-    test()
+    # test()
     # print(f"Testing Part 1: {part1(test_data)}")
-    # print(f"Testing Part 1: {part1(get_file_data('./data/013.txt'))}")
+    print(f"Testing Part 1: {part1(get_file_data('./data/013.txt'))}")  # 31065
