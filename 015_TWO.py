@@ -137,9 +137,9 @@ def follow_path(map: Map, path: List[str], start_position: Tuple[int, int]):
                 map[postion] = "."
                 map[new_postion] = "@"
                 postion = new_postion
-        print(direction)
-        show_map(map)
-        print()
+        # print(direction)
+        # show_map(map)
+        # print()
 
 
 class Point(NamedTuple):
@@ -247,9 +247,11 @@ def moving_box(map: Map, box: Box, move: Tuple[int, int]) -> bool:
         ):
             next_box_left: Box = get_box(Point(box.left.x, box.left.y - 1), map)
             next_box_right: Box = get_box(Point(box.right.x, box.right.y - 1), map)
-            if moving_box(map, next_box_left, move) and moving_box(
+            if can_moving_box(map, next_box_left, move) and can_moving_box(
                 map, next_box_right, move
             ):
+                moving_box(map, next_box_left, move)
+                moving_box(map, next_box_right, move)
                 # move the box up
                 map[box.left.x, box.left.y - 1] = "["
                 map[box.right.x, box.right.y - 1] = "]"
@@ -313,14 +315,104 @@ def moving_box(map: Map, box: Box, move: Tuple[int, int]) -> bool:
         ):
             next_box_left: Box = get_box(Point(box.left.x, box.left.y + 1), map)
             next_box_right: Box = get_box(Point(box.right.x, box.right.y + 1), map)
-            if moving_box(map, next_box_left, move) and moving_box(
+            if can_moving_box(map, next_box_left, move) and can_moving_box(
                 map, next_box_right, move
             ):
+                moving_box(map, next_box_left, move)
+                moving_box(map, next_box_right, move)
                 # move the box down
                 map[box.left.x, box.left.y + 1] = "["
                 map[box.right.x, box.right.y + 1] = "]"
                 map[box.left.x, box.left.y] = "."
                 map[box.right.x, box.right.y] = "."
+                return True
+        return False
+
+    return False
+
+
+def can_moving_box(map: Map, box: Box, move: Tuple[int, int]) -> bool:
+    # hard part is moving the box up or down
+    if move == (0, -1):  # can move up ?
+        if (
+            map[box.left.x, box.left.y - 1] == "["
+            and map[box.right.x, box.right.y - 1] == "]"
+        ):
+            next_box: Box = Box(
+                left=Point(box.left.x, box.left.y - 1),
+                right=Point(box.right.x, box.right.y - 1),
+            )
+            if can_moving_box(map, next_box, move):
+                return True
+        elif (
+            map[box.left.x, box.left.y - 1] == "."
+            and map[box.right.x, box.right.y - 1] == "."
+        ):
+            return True
+        elif (
+            map[box.left.x, box.left.y - 1] == "]"
+            and map[box.right.x, box.right.y - 1] == "."
+        ):
+            next_box: Box = get_box(Point(box.left.x, box.left.y - 1), map)
+            if can_moving_box(map, next_box, move):
+                return True
+        elif (
+            map[box.left.x, box.left.y - 1] == "."
+            and map[box.right.x, box.right.y - 1] == "["
+        ):
+            next_box: Box = get_box(Point(box.right.x, box.right.y - 1), map)
+            if can_moving_box(map, next_box, move):
+                return True
+        elif (
+            map[box.left.x, box.left.y - 1] == "]"
+            and map[box.right.x, box.right.y - 1] == "["
+        ):
+            next_box_left: Box = get_box(Point(box.left.x, box.left.y - 1), map)
+            next_box_right: Box = get_box(Point(box.right.x, box.right.y - 1), map)
+            if can_moving_box(map, next_box_left, move) and can_moving_box(
+                map, next_box_right, move
+            ):
+                return True
+        return False
+    elif move == (0, 1):  # can move down ?
+        if (
+            map[box.left.x, box.left.y + 1] == "["
+            and map[box.right.x, box.right.y + 1] == "]"
+        ):
+            next_box: Box = Box(
+                left=Point(box.left.x, box.left.y + 1),
+                right=Point(box.right.x, box.right.y + 1),
+            )
+            if can_moving_box(map, next_box, move):
+                return True
+        elif (
+            map[box.left.x, box.left.y + 1] == "."
+            and map[box.right.x, box.right.y + 1] == "."
+        ):
+            return True
+        elif (
+            map[box.left.x, box.left.y + 1] == "]"
+            and map[box.right.x, box.right.y + 1] == "."
+        ):
+            next_box: Box = get_box(Point(box.left.x, box.left.y + 1), map)
+            if can_moving_box(map, next_box, move):
+                return True
+        elif (
+            map[box.left.x, box.left.y + 1] == "."
+            and map[box.right.x, box.right.y + 1] == "["
+        ):
+            next_box: Box = get_box(Point(box.right.x, box.right.y + 1), map)
+            if can_moving_box(map, next_box, move):
+                return True
+        elif (
+            map[box.left.x, box.left.y + 1] == "]"
+            and map[box.right.x, box.right.y + 1] == "["
+        ):
+            next_box_left: Box = get_box(Point(box.left.x, box.left.y + 1), map)
+            next_box_right: Box = get_box(Point(box.right.x, box.right.y + 1), map)
+            if can_moving_box(map, next_box_left, move) and can_moving_box(
+                map, next_box_right, move
+            ):
                 return True
         return False
 
@@ -412,6 +504,6 @@ if __name__ == "__main__":
     # test()
     file_data = get_file_data("./data/015.txt")
     # print(f"Part 1: {part1(file_data)}")  # 1538871
-    print(f"Part 2: {part2(edge_data)}")  # 1532765 too low
+    print(f"Part 2: {part2(file_data)}")  # 1543338
 
     # test_two()
