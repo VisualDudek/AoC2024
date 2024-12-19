@@ -8,6 +8,12 @@ Register C: 0
 
 Program: 0,1,5,4,3,0"""
 
+test_data_002 = """Register A: 2024
+Register B: 0
+Register C: 0
+
+Program: 0,3,5,4,3,0"""
+
 
 def parse_data(s: str):
     registers: Dict[str, int] = {}
@@ -31,8 +37,13 @@ def run_program(registers: Dict[str, int], program: list[int]):
     # for opcode, operand in zip(program[::2], program[1::2]):
     # for i in range(0, len(program), 2):
     output = []
+    ouotput_max = len(program)
     i = 0
     while i < len(program):
+
+        if output:
+            if output[-1] != program[len(output) - 1]:
+                break
 
         opcode = program[i]
         operand = program[i + 1]
@@ -81,10 +92,25 @@ def get_file_data(file_path: str) -> str:
         return file.read()
 
 
-def part1(data: str) -> int:
+def part1(data: str):
     registers, program = parse_data(data)
     res = run_program(registers, program)
     return ",".join(map(str, res))
+
+
+def part2(data: str):
+    registers, program = parse_data(data)
+
+    seek = ",".join(map(str, program))
+
+    for i in range(1, 100_000_000):
+        if i % 1_000_000 == 0:
+            print(f"{i:,}")
+        registers["A"] = i
+        res = run_program(registers, program)
+        if ",".join(map(str, res)) == seek:
+            return i
+    return None
 
 
 def test():
@@ -98,4 +124,7 @@ def test():
 if __name__ == "__main__":
     # test()
     data = get_file_data("./data/017.txt")
-    print(part1(data))  # 7,1,5,2,4,0,7,6,1
+    # print(part1(data))  # 7,1,5,2,4,0,7,6,1
+    # print(part2(test_data_002))  # 117440
+
+    print(part2(data))
