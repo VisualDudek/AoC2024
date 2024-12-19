@@ -60,6 +60,22 @@ class Grid:
             print()
         print()
 
+    def show_robots_unique(self, robots: Robots):
+
+        position_counter = defaultdict(lambda: 0)
+        for _, (pos, _) in robots.items():
+            position_counter[pos] += 1
+
+        if not any(item > 1 for item in position_counter.values()):
+            for y in range(self.max_y):
+                for x in range(self.max_x):
+                    if (no := position_counter[Pos(x, y)]) > 0:
+                        print(no, end="")
+                    else:
+                        print(".", end="")
+                print()
+            print()
+
 
 def parse_data(s: str) -> Robots:
 
@@ -81,7 +97,7 @@ def part1(robots: Robots, grid: Grid) -> Robots:
 
     grid.show_robots(robots)
 
-    for step in range(100):
+    for step in range(10000):
         print(f"After step {step+1}")
         for id, (pos, vel) in robots.items():
             robots[id] = (
@@ -89,7 +105,7 @@ def part1(robots: Robots, grid: Grid) -> Robots:
                 vel,
             )
 
-        grid.show_robots(robots)
+        grid.show_robots_unique(robots)
 
     return robots
 
@@ -194,10 +210,10 @@ def test():
     # grid = Grid(11, 7)
     data = parse_data(get_file_data("./data/014.txt"))  # 229980828
     grid = Grid(101, 103)
-    # part1(data, grid)
+    part1(data, grid)
     # print(calculate_solution_one(data, grid))
 
-    part2(data, grid)
+    # part2(data, grid)
 
 
 if __name__ == "__main__":
