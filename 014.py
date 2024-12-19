@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
+import itertools
 import re
 from typing import Dict, NamedTuple, Tuple, TypeAlias
 
@@ -139,9 +140,53 @@ def calculate_solution_one(robots: Robots, grid: Grid) -> int:
     return top_left * top_right * bottom_left * bottom_right
 
 
+def calculate_density(robots: Robots, grid: Grid) -> float:
+
+    lst_points = [pos for pos, _ in robots.values()]
+
+    permutations = itertools.permutations(lst_points, 2)
+
+    sum_distance = sum(euclidean_distance(pos1, pos2) for pos1, pos2 in permutations)
+
+    return sum_distance
+
+
+def part2(robots: Robots, grid: Grid) -> Robots:
+
+    grid.show_robots(robots)
+
+    min = float("inf")
+
+    for step in range(10000):
+        print(f"After step {step+1}")
+        for id, (pos, vel) in robots.items():
+            robots[id] = (
+                Pos((pos.x + vel.x) % grid.max_x, (pos.y + vel.y) % grid.max_y),
+                vel,
+            )
+
+        if (density := calculate_density(robots, grid)) < min:
+            min = density
+        pass
+
+        if density <= 7845275:
+            grid.show_robots(robots)
+            print(min)
+            input("Press Enter to continue...")
+        # print(f"Min Density: {min:,.2f}")
+
+    print(f"Min density: {min}")
+
+    return robots
+
+
 def get_file_data(file_path: str) -> str:
     with open(file_path, "r") as file:
         return file.read()
+
+
+def euclidean_distance(p1: Pos, p2: Pos) -> float:
+    return ((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2) ** 0.5
 
 
 def test():
@@ -149,8 +194,10 @@ def test():
     # grid = Grid(11, 7)
     data = parse_data(get_file_data("./data/014.txt"))  # 229980828
     grid = Grid(101, 103)
-    part1(data, grid)
-    print(calculate_solution_one(data, grid))
+    # part1(data, grid)
+    # print(calculate_solution_one(data, grid))
+
+    part2(data, grid)
 
 
 if __name__ == "__main__":
