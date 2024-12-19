@@ -1,4 +1,4 @@
-from collections import deque
+from collections import defaultdict, deque
 from enum import StrEnum
 import heapq
 from typing import Iterator, List, Tuple, TypeAlias, cast
@@ -152,7 +152,7 @@ def traverse(grid: Map):
     visited = set()
 
     # predessor map for path reconstruction
-    pred: dict[complex, complex] = {}
+    pred = defaultdict(list)
 
     while min_heap:
         # pop the node with the smallest distance
@@ -176,7 +176,7 @@ def traverse(grid: Map):
             # if a shorter path to neighbor is found, update it
             if neighbor.value < distance[neighbor.pos]:
                 distance[neighbor.pos] = neighbor.value
-                pred[neighbor.pos] = node.pos
+                pred[neighbor.pos] = [node.pos]
                 heapq.heappush(min_heap, (neighbor.value, neighbor))
 
     return pred
@@ -197,16 +197,20 @@ def get_file_data(file_path: str) -> str:
         return file.read()
 
 
-def reconstruct_path(
-    pred: dict[complex, complex], start: complex, end: complex
+def reconstruct_all_positions(
+    pred: dict[complex, List[complex]], start: complex, end: complex
 ) -> List[complex]:
-    path = []
-    node = end
-    while node != start:
-        path.append(node)
-        node = pred[node]
-    path.append(start)
-    return path[::-1]
+
+    positions = set()
+    stack = deque([end])
+    while stack:
+        pos = stack.popleft()
+        if pos in positions:
+            continue
+        positions.add(pos)
+        stack.extend(pred[pos])
+        print(pos, "    ", pred[pos])
+    return list(positions)
 
 
 if __name__ == "__main__":
@@ -216,5 +220,6 @@ if __name__ == "__main__":
     grid = Map(grid_data)
     # grid.show()
     pred = traverse(grid)
-    path = reconstruct_path(pred, grid.start, grid.end)
-    grid.show_positions(path)
+    print(pred)
+    points = reconstruct_all_positions(pred, grid.start, grid.end)
+    grid.show_positions(points)
