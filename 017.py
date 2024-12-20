@@ -1,3 +1,4 @@
+from functools import lru_cache
 import re
 from typing import Dict
 
@@ -60,31 +61,41 @@ def run_program(registers: Dict[str, int], program: list[int]):
             raise ValueError("Invalid operand")
 
         # deal with opcode
-        if opcode == 0:  # adv
-            value = registers["A"] / 2**operand_value
-            registers["A"] = int(value)
-        elif opcode == 1:  # bxl
-            value = registers["B"] ^ operand_value
-            registers["B"] = value
-        elif opcode == 2:  # bst
-            registers["B"] = operand_value % 8
+        if opcode in (0, 1, 2, 4, 6, 7):  # jnz
+            registers = fn_for_cache(
+                registers["A"], registers["B"], registers["C"], opcode, operand_value
+            )
         elif opcode == 3:  # jnz
             if registers["A"] != 0:
                 i = operand_value
                 continue
-        elif opcode == 4:  # bxc
-            registers["B"] = registers["B"] ^ registers["C"]
         elif opcode == 5:  # out
             output.append(operand_value % 8)
-        elif opcode == 6:  # bdv
-            value = registers["A"] / 2**operand_value
-            registers["B"] = int(value)
-        elif opcode == 7:  # cdv
-            value = registers["A"] / 2**operand_value
-            registers["C"] = int(value)
 
         i += 2
     return output
+
+
+@lru_cache(maxsize=128)
+def fn_for_cache(a, b, c, opcode, operand_value):
+    if opcode == 0:  # adv
+        value = a / 2**operand_value
+        a = int(value)
+    elif opcode == 1:  # bxl
+        value = b ^ operand_value
+        b = value
+    elif opcode == 2:  # bst
+        b = operand_value % 8
+    elif opcode == 4:  # bxc
+        b = b ^ c
+    elif opcode == 6:  # bdv
+        value = a / 2**operand_value
+        b = int(value)
+    elif opcode == 7:  # cdv
+        value = a / 2**operand_value
+        c = int(value)
+
+    return {"A": a, "B": b, "C": c}
 
 
 def get_file_data(file_path: str) -> str:
@@ -103,7 +114,7 @@ def part2(data: str):
 
     seek = ",".join(map(str, program))
 
-    for i in range(1, 100_000_000):
+    for i in range(99_000_000, 200_000_000):
         if i % 1_000_000 == 0:
             print(f"{i:,}")
         registers["A"] = i
